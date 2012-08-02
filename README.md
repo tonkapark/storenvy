@@ -8,6 +8,13 @@ Installation
     gem install storenvy
     
 
+Usage
+-------------
+
+	client = Storenvy::Client.new
+	store = client.store("tonkapark")
+	
+
 Supported Rubies
 ----------------
  * 1.8.7
@@ -17,7 +24,7 @@ Supported Rubies
 Change Log
 ==========
 
-0.0.1 - August 2nd 2012
+0.0.2 - August 2nd 2012
 --------------
 * just starting out.
 
