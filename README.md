@@ -1,6 +1,6 @@
 The Storenvy Ruby Gem
 ====================
-A Ruby wrapper for the Storenvy REST API.
+A Ruby wrapper for the Storenvy REST API. Initial versions cover the read-only Public JSON API
 
 
 Installation
@@ -11,9 +11,28 @@ Installation
 Usage
 -------------
 
-	client = Storenvy::Client.new
-	store = client.store("tonkapark")
+	client = Storenvy::Client.new("tonkapark")
+	store = client.store
+	puts store.url
 	
+	# GET First 50 Products for account
+	client.products()
+	
+	# GET All Products
+	client.products(display_all_products = true)
+	
+	# GET Single Page, max 50 products
+	client.products(page = 2)	
+
+	# GET Single Product
+	client.product(12345)
+
+	# GET Collections
+	client.collections
+	
+	# GET Single Collection
+	client.collection(12345)	
+
 
 Supported Rubies
 ----------------
@@ -23,6 +42,13 @@ Supported Rubies
 
 Change Log
 ==========
+
+0.1.0 - August 3rd 2012
+--------------
+* Tweaked Client to take in the host/subdomain/account id from storenvy shop.
+* Added in new methods (products, product, all_products, collections, collection) for more of the public storenvy api
+* Added more tests
+
 
 0.0.2 - August 2nd 2012
 --------------
