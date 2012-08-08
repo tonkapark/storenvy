@@ -51,6 +51,7 @@ module Storenvy
 	    opts = { :show_products => true }.merge opts
 	    
       data = self.class.fetch("http://#{@host}/store.json")
+      data.products = opts[:show_products] ?  products(true) : {}
       data
     end
 
