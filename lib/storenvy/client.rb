@@ -8,7 +8,7 @@ module Storenvy
     include HTTParty
     headers 'Content-Type' => 'application/json' 
     
-    attr_reader :account, :host
+    attr_reader :account, :host, :maintenance_mode
     
     def initialize(host)
       host.gsub!(/https?:\/\//, '') # remove http(s)://    
@@ -23,10 +23,11 @@ module Storenvy
       case response.code
         when 200
           Hashie::Mash.new(response) 
-        when 503
-          {:error => "#{response.code} - Maintenance Mode"}          
+        when 503        
+          @maitenance_mode = true
+          Hashie::Mash.new({:error => "#{response.code} - Maintenance Mode", :maintenance_mode => true})
         else
-          {:error => response.code}
+          Hashie::Mash.new({:error => response.code})
       end        
     end
     
@@ -39,11 +40,13 @@ module Storenvy
         when 200
           response.map { |c| Hashie::Mash.new(c) }
         when 503
-          {:error => "#{response.code} - Maintenance Mode"}          
+          # {:error => "#{response.code} - Maintenance Mode"}          
+          @maitenance_mode = true
+          []
         else
           {:error => response.code}
       end      
-    end	
+    end
 
 	
 	  # GET store resource
@@ -51,7 +54,11 @@ module Storenvy
 	    opts = { :show_products => true }.merge opts
 	    
       data = self.class.fetch("http://#{@host}/store.json")
-      data.products = opts[:show_products] ?  products(true) : {}
+      unless @maintenance_mode
+        data.products = opts[:show_products] ?  products(true) : {} 
+      else 
+        data.products = nil
+      end
       data
     end
 
@@ -87,12 +94,12 @@ module Storenvy
       products = []
       while true   
         data = self.class.list("http://#{@host}/products.json", {:page => page})
-        products = (products+data).group_by{|h| h[:id]}.map{ |k,v| v.reduce(:merge)}
+        products = (products+data).group_by{|h| h[:id]}.map{ |k,v| v.reduce(:merge)} unless @maintenance_mode
         page = page + 1
         break if data.count < 50
       end
       products
-    end 
+    end
     
   end
 end
